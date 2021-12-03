@@ -13,6 +13,22 @@
 
   <body>
     <div class="app">
+      <p id="online" style="color: #308adf"></p>
+      <audio
+        id="myAudio"
+        src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_emergency_alarm_siren_high_pitched_beeps_danger_68955.mp3"
+        preload="auto"
+        autoplay="true"
+      ></audio>
+
+      <textarea
+        id="textArea"
+        placeholder="Copy here pmt check-In check-Out times"
+        style="width: 100%"
+      ></textarea>
+
+      <button onclick="genPmtTimes()">Set PMT Times</button>
+
       <div id="timeInputes" style="flex-direction: row; flex: 1"></div>
       <button onclick="AddTime()" class="blue">
         <span class="material-icons icon"> control_point </span>
@@ -30,8 +46,39 @@
     </div>
 
     <script>
+      var textArea = document.getElementById("textArea");
+      textArea.focus();
+
+      var myAudio = document.getElementById("myAudio");
+      var isPlaying = false;
+
+      function togglePlay() {
+        isPlaying ? myAudio.pause() : myAudio.play();
+      }
+
+      myAudio.onplaying = function () {
+        isPlaying = true;
+      };
+      myAudio.onpause = function () {
+        isPlaying = false;
+      };
+
+      function isOnline() {
+        if (navigator.onLine) {
+          document.getElementById("online").innerHTML = "Online";
+          // myAudio.pause();
+        } else {
+          document.getElementById("online").innerHTML = "Offline";
+          // myAudio.play();
+        }
+      }
+
       var times_ = [];
       var divId = 0;
+
+      function genPmtTimes() {
+        times_ = pmtTimeGen(textArea.value);
+      }
 
       // var times_ = [
       //   ["09:24:32", "10:59:26"],
@@ -102,7 +149,7 @@
           times_.splice(index, 1);
         }
         console.log("new_times_", times_);
-        // times_ = times_;
+        times_ = times_;
       }
 
       // calcTime -----------------------------
@@ -211,7 +258,61 @@
         } else {
           console.log("Enter Times");
         }
+
+        isOnline();
       }, 1000);
+
+      // Return pmt times
+
+      function pmtTimeGen(times) {
+        var timeArray = [];
+
+        times.replace(/^\s+|\s+$/g, "");
+
+        let arr = times.split("\n");
+
+        arr.map((item, key) => {
+          //   chckIn
+          let time = [];
+          item = item.split("\t");
+          // console.log(item)
+          let t = item[item.length - 1].split(" ");
+          //  console.log(item[2], t[1])
+
+          // chckOut
+
+          var item2 = [];
+          let t2 = "^";
+          if (arr[key + 1]) {
+            item2 = arr[key + 1].split("\t");
+            t2 = item2[item2.length - 1].split(" ");
+          }
+
+          // console.log("#",parseInt(t2[1]) == 13)
+
+          if (item[2] == "Check-In") {
+            time[0] = t[1];
+
+            if (parseInt(t2[1]) == 13) {
+              time[1] = "01:00:00";
+            } else {
+              time[1] = t2[1];
+            }
+          } else {
+            //  time[1] = t[1];
+            //  time[0] = t2[1]
+          }
+
+          //  console.log(time)
+
+          if (time.length != 0) {
+            timeArray.push(time);
+          }
+          time = [];
+        });
+
+        return timeArray;
+      }
     </script>
   </body>
 
@@ -254,6 +355,7 @@
       text-align: center;
       height: 100vh;
     }
+    textarea,
     input[type="time"] {
       background: #eaeff1;
       border: none;
@@ -272,3 +374,4 @@
     }
   </style>
 </html>
+
