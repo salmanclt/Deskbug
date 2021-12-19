@@ -1,377 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AMT Dev</title>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-    />
-  </head>
-
-  <body>
-    <div class="app">
-      <p id="online" style="color: #308adf"></p>
-      <audio
-        id="myAudio"
-        src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_emergency_alarm_siren_high_pitched_beeps_danger_68955.mp3"
-        preload="auto"
-        autoplay="true"
-      ></audio>
-
-      <textarea
-        id="textArea"
-        placeholder="Copy here pmt check-In check-Out times"
-        style="width: 100%"
-      ></textarea>
-
-      <button onclick="genPmtTimes()">Set PMT Times</button>
-
-      <div id="timeInputes" style="flex-direction: row; flex: 1"></div>
-      <button onclick="AddTime()" class="blue">
-        <span class="material-icons icon"> control_point </span>
-        Add Time
-      </button>
-
-      <!-- <button onclick="test()">Test</button> -->
-
-      <p>Total - Time</p>
-      <p id="time" style="color: #308adf"></p>
-      <p>Remaining Time</p>
-      <p id="time_remaining" style="color: #ff7146"></p>
-      <p>Time Out <span class="material-icons"> directions_run </span></p>
-      <p id="time_out" style="color: #69d47b"></p>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script
+    src="https://cdn.skypack.dev/emoji-picker-element"
+    type="module"
+  ></script>
+</head>
+<body>
+    <!-- <div id="emojies">
+        <emoji-picker style="width: 100%"></emoji-picker>
     </div>
+  <input name="msg" id="msg"/>
+  <button id="toggle">Emojies</button> -->
 
-    <script>
-      var textArea = document.getElementById("textArea");
-      textArea.focus();
+  <button id="enable" onclick="notifyMe()">Enable notifications</button>
 
-      var myAudio = document.getElementById("myAudio");
-      var isPlaying = false;
+</body>
 
-      function togglePlay() {
-        isPlaying ? myAudio.pause() : myAudio.play();
-      }
+    
 
-      myAudio.onplaying = function () {
-        isPlaying = true;
-      };
-      myAudio.onpause = function () {
-        isPlaying = false;
-      };
 
-      function isOnline() {
-        if (navigator.onLine) {
-          document.getElementById("online").innerHTML = "Online";
-          // myAudio.pause();
-        } else {
-          document.getElementById("online").innerHTML = "Offline";
-          // myAudio.play();
-        }
-      }
 
-      var times_ = [];
-      var divId = 0;
+  <script>
 
-      function genPmtTimes() {
-        times_ = pmtTimeGen(textArea.value);
-      }
 
-      // var times_ = [
-      //   ["09:24:32", "10:59:26"],
-      //   ["11:13:45", "12:00:00"],
-      //   ["16:13:45", "17:00:00"],
-      // ];
 
-      var main = document.getElementById("timeInputes");
-      let t = [
-        new Date().toLocaleTimeString(),
-        new Date().toLocaleTimeString(),
-      ];
 
-      function AddTime() {
-        divId += 1;
-        main.insertAdjacentHTML("beforeend", `<div id=${divId}><div/>`);
 
-        var timeInputes = document.getElementById(divId);
 
-        // var tStart = document.createElement("input");
-        // var tEnd = document.createElement("input");
-        // var spanP = document.createElement("p");
-        // tStart.setAttribute("id", "startTime");
-        // tStart.setAttribute("type", "time");
-        // var textnode = document.createTextNode("To");
-        // spanP.appendChild(textnode);
-        // document.getElementById("timeInputes").appendChild(tStart);
-        // document.getElementById("timeInputes").appendChild(tEnd);
-        timeInputes.insertAdjacentHTML(
-          "beforeend",
-          `<input type="time" id="startTime" value="${new Date().toLocaleTimeString()}" onchange="setTimeFun(this.value, 0)">`
-        );
-        timeInputes.insertAdjacentHTML(
-          "beforeend",
-          `<input type="time" id="endTime" value="${new Date().toLocaleTimeString()}" onchange="setTimeFun(this.value, 1)">`
-        );
-        timeInputes.insertAdjacentHTML(
-          "beforeend",
-          ` <button onclick="setTime();this.style.display = 'none'"> <span class="material-icons icon"> check </span>Set Time</button>`
-        );
-        timeInputes.insertAdjacentHTML(
-          "beforeend",
-          ` <button onclick="removeTime(${divId})" class="red"> <span class="material-icons icon"> remove </span>Remove</button>`
-        );
-        document.getElementById("timeInputes").appendChild(spanP);
+// NOTIFICATION
+// request permission on page load
+document.addEventListener('DOMContentLoaded', function() {
+ if (!Notification) {
+  alert('Desktop notifications not available in your browser. Try Chromium.');
+  return;
+ }
 
-        var timeStart = document.getElementById("startTime").value;
-        var timeEnd = document.getElementById("endTime").value;
+ if (Notification.permission !== 'granted')
+  Notification.requestPermission();
+});
 
-        console.log(timeStart);
 
-        // document.getElementsByTagName("timeInputes")[0].setAttribute("id", "startTime");
-      }
+function notifyMe(user, msg) {
+ if (Notification.permission !== 'granted')
+  Notification.requestPermission();
+ else {
+  var notification = new Notification(user, {
+   icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+   body: msg,
+  });
+  notification.onclick = function() {
+   window.open('http://stackoverflow.com/a/13328397/1269037');
+  };
+ }
+}
 
-      function setTimeFun(val, indx) {
-        t[indx] = val;
-        // console.log(val);
-      }
-      function setTime() {
-        times_.push(t);
-        t = [new Date().toLocaleTimeString(), new Date().toLocaleTimeString()];
-      }
 
-      function removeTime(id) {
-        document.getElementById(id).remove();
-        const index = times_.indexOf(times_[id]);
-        if (index > -1) {
-          times_.splice(index, 1);
-        }
-        console.log("new_times_", times_);
-        times_ = times_;
-      }
 
-      // calcTime -----------------------------
 
-      const calcTime = (t1, t2, action = "+") => {
-        // timePlus('7:05:00', '00:52:00');
 
-        var tm = t1.split(":");
-        var tm_ = t2.split(":");
 
-        let t;
-        let tt;
-        let ttt;
 
-        if (action == "+") {
-          t = parseFloat(tm[0]) + parseFloat(tm_[0]);
-          tt = parseFloat(tm[1]) + parseFloat(tm_[1]);
-          ttt = parseFloat(tm[2]) + parseFloat(tm_[2]);
 
-          if (tt >= 60) {
-            tt -= 60;
-            t += 1;
-            if (tt == 60) {
-              t += 1;
-              tt = 0;
-            }
-          }
 
-          if (ttt >= 60) {
-            ttt -= 60;
-            tt += 1;
-            if (ttt == 60) {
-              tt += 1;
-              ttt = 0;
-            }
-          }
-        } else {
-          t = parseFloat(tm[0]) - parseFloat(tm_[0]);
-          tt = parseFloat(tm[1]) - parseFloat(tm_[1]);
-          ttt = parseFloat(tm[2]) - parseFloat(tm_[2]);
+//    var msg = document.getElementById("msg");
+// document.querySelector("emoji-picker")
+//   .addEventListener("emoji-click", (event) => {
+//     console.log(event.detail.emoji.unicode);
+//     msg.value += event.detail.emoji.unicode
+//   });
 
-          if (tt <= 0) {
-            tt = 60 - Math.abs(tt);
-            t -= 1;
-            if (tt == 60) {
-              t += 1;
-              tt = 0;
-            }
-          }
+//   const emojies = document.getElementById("emojies");
+// const btn = document.getElementById("toggle");
+// btn.onclick = function () {
+//   if (emojies.style.display !== "none") {
+//     emojies.style.display = "none";
+//   } else {
+//     emojies.style.display = "block";
+//   }
+// };
 
-          if (ttt <= 0) {
-            ttt = 60 - Math.abs(ttt);
-            tt -= 1;
-            if (ttt == 60) {
-              tt += 1;
-              ttt = 0;
-            }
-          }
-        }
 
-        if (t > 24) {
-          t -= 24;
-        } else if (t > 12) {
-          t -= 12;
-        }
-
-        const time = `${
-          Math.abs(t).toString().length == 2 ? Math.abs(t) : "0" + Math.abs(t)
-        }:${
-          Math.abs(tt).toString().length == 2
-            ? Math.abs(tt)
-            : "0" + Math.abs(tt)
-        }:${
-          Math.abs(ttt).toString().length == 2
-            ? Math.abs(ttt)
-            : "0" + Math.abs(ttt)
-        }`;
-
-        return time;
-      };
-
-      // function test() {
-      setInterval(() => {
-        if (times_.length > 0) {
-          var times = [
-            ...times_,
-            [times_[times_.length - 1][1], new Date().toLocaleTimeString()],
-          ];
-          console.log("--", times);
-
-          var total = "00:00:00";
-
-          times.map((item, k) => {
-            let extractTime = calcTime(item[1], item[0], "-");
-            console.log("working--", extractTime);
-            total = calcTime(total, extractTime);
-          });
-          document.getElementById("time").innerHTML = total;
-          var time_remaining = (document.getElementById(
-            "time_remaining"
-          ).innerHTML = calcTime("08:00:00", total, "-"));
-          document.getElementById("time_out").innerHTML = calcTime(
-            new Date().toLocaleTimeString(),
-            time_remaining
-          );
-        } else {
-          console.log("Enter Times");
-        }
-
-        isOnline();
-      }, 1000);
-
-      // Return pmt times
-
-      function pmtTimeGen(times) {
-        var timeArray = [];
-
-        times.replace(/^\s+|\s+$/g, "");
-
-        let arr = times.split("\n");
-
-        arr.map((item, key) => {
-          //   chckIn
-          let time = [];
-          item = item.split("\t");
-          // console.log(item)
-          let t = item[item.length - 1].split(" ");
-          //  console.log(item[2], t[1])
-
-          // chckOut
-
-          var item2 = [];
-          let t2 = "^";
-          if (arr[key + 1]) {
-            item2 = arr[key + 1].split("\t");
-            t2 = item2[item2.length - 1].split(" ");
-          }
-
-          // console.log("#",parseInt(t2[1]) == 13)
-
-          if (item[2] == "Check-In") {
-            time[0] = t[1];
-
-            if (parseInt(t2[1]) == 13) {
-              time[1] = "01:00:00";
-            } else {
-              time[1] = t2[1];
-            }
-          } else {
-            //  time[1] = t[1];
-            //  time[0] = t2[1]
-          }
-
-          //  console.log(time)
-
-          if (time.length != 0) {
-            timeArray.push(time);
-          }
-          time = [];
-        });
-
-        return timeArray;
-      }
-    </script>
-  </body>
-
-  <style>
-    * {
-      font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-    }
-    button {
-      background: #69d47b;
-      border: none;
-      margin-bottom: 0.625em;
-      margin-top: 0.3em;
-      outline-offset: 3px;
-      padding: 0.45em 0.6em 0.45em 2em;
-      font-size: 20;
-      color: white;
-      text-align: center;
-      position: relative;
-      cursor: pointer;
-    }
-    button:hover {
-      opacity: 0.8;
-    }
-    .icon {
-      position: absolute;
-      left: 3px;
-      top: 4px;
-      font-size: 20px;
-    }
-    .red {
-      background: #ff7146;
-    }
-    .blue {
-      background: #308adf;
-    }
-    .app {
-      width: "40%";
-      margin: auto;
-      text-align: center;
-      height: 100vh;
-    }
-    textarea,
-    input[type="time"] {
-      background: #eaeff1;
-      border: none;
-      border-bottom: 4px solid #c9d6da;
-      border-right: 4px solid #fff;
-      margin-bottom: 0.625em;
-      margin-top: 0.3em;
-      outline-offset: 3px;
-      padding: 0.45em 0.45em 0.45em 0.65em;
-      font-size: 20;
-      cursor: pointer;
-    }
-    p {
-      color: rgba(0, 0, 0, 0.555);
-      line-height: 0.2;
-    }
-  </style>
+  </script>
 </html>
 
+
+</html>
