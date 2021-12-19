@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ui</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400;900&family=Rubik:wght@800&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://cdn.skypack.dev/emoji-picker-element"
+      type="module"
+    ></script>
+    <link rel="stylesheet" href="style.css" />
+    <script type="text/javascript" src="main.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      var socket = io();
+
+      function setUsername() {
+        var inputVal = document.getElementById("message")
+        console.log("inputVal",inputVal.value);
+        if(inputVal.value){
+          socket.emit("setUsername", inputVal.value);
+        }else{
+          alert("Enter Nickname!")
+        }
+      }
+
+
+      var user;
+
+      socket.on("userExists", function (data) {
+        document.getElementById("error-container").innerHTML = data;
+      });
+
+
+      socket.on("userSet", function (data) {
+        user = data.username;
+        var sendButton = document.getElementById("sendButton");
+        sendButton.setAttribute("onclick", "sendMessage()");
+        sendButton.innerHTML =  "SEND";
+        document.getElementById("message").setAttribute("placeholder","Message...")
+        // document.getElementById(
+        //   "chatbox"
+        // ).innerHTML = `<input type="text" id="message" placeholder="Message..." />
+        // <button id="toggleEmojies" onclick="toggleEmojiContainer()">😃</button>
+        //   <button type="button"  name="button" onclick="sendMessage()" class="button">SEND</button>`;
+
+        document.getElementById("message").value = "";
+        //  remove err
+        document.getElementById("error-container").innerHTML = ``;
+
+      });
+
+
+
+
+      function sendMessage(withEmoji = false) {
+        var msg = document.getElementById("message").value;
+        if (msg) {
+          socket.emit("msg", {
+            message: msg,
+            user: user,
+            withEmoji: withEmoji,
+          });
+        }
+        document.getElementById("message").value = "";
+
+        var messageContainer = document.getElementById("message-container");
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+
+      socket.on("newmsg", function (data) {
+        var isYou = user == data.user;
+        var colors = [
+          "#e84393",
+          "#55efc4",
+          "#ffeaa7",
+          "#b82e1f",
+          "#166d3b",
+          "#04619f",
+          "#923cb5",
+          "#ffa69e",
+          "#8b939a",
+          "#63d471",
+          "#e84393",
+          "#55efc4",
+          "#ffeaa7",
+          "#a2e342",
+          "#561a91",
+          "#425de3",
+          "#d042e3",
+          "#e02639",
+          "#5da122",
+          "#20e0e3",
+          "#db9e02",
+          "#9416c9",
+        ];
+
+        // console.log(user, data.user.length);
+
+        if (user) {
+          document.getElementById(
+            "message-container"
+          ).innerHTML += `<div class="chat" ${
+            isYou ? 'style="right: -25%; position: relative"' : ""
+          } >
+            <p class="user" style='background: -webkit-linear-gradient(45deg, ${
+              isYou
+                ? "yellow"
+                : colors[data.user.length > 22 ? 10 : data.user.length]
+            }, #d8ef55);
+             -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;'>${
+              isYou ? "You" : data.user
+            }</p>
+            <span class="${data.withEmoji ? "withEmoji" : "message"}">${
+            data.message
+          }</span>
+          </div>`;
+        }
+        // push notification
+        if (!isYou) notifyMe(data.user, data.message);
+        var messageContainer = document.getElementById("message-container");
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      });
+
+      // NOTIFICATION
+      // request permission on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!Notification) {
+          alert(
+            "Desktop notifications not available in your browser. Try Chromium."
+          );
+          return;
+        }
+
+        if (Notification.permission !== "granted")
+          Notification.requestPermission();
+      });
+
+      function notifyMe(user, msg) {
+        if (Notification.permission !== "granted")
+          Notification.requestPermission();
+        else {
+          var notification = new Notification(user, {
+            icon: "http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png",
+            body: msg,
+          });
+          notification.onclick = function () {
+            window.open("http://stackoverflow.com/a/13328397/1269037");
+          };
+        }
+      }
+
+    </script>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0px;
+      padding: 0px;
+      font-family: "inconsolata", monospace;
+    }
+
+    /* width */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+      background: #ffffff05;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: #ffffff10;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ffffff15;
+    }
+
+    body {
+      background-color: #000;
+      height: 100vh;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .bg {
+      background: linear-gradient(
+        -60deg,
+        #ee775210,
+        #23a6d516,
+        #55efc401,
+        #23d5ab05,
+        #923cb550
+      );
+      animation: gradient 20s ease infinite;
+      background-size: 400% 400%;
+      backdrop-filter: blur(500px);
+      background-blend-mode: multiply;
+      height: 100vh;
+    }
+
+    .container {
+      height: 100vh;
+      border-radius: 20px;
+      width: 48%;
+      padding: 20px;
+      position: relative;
+    }
+
+    p {
+      font-family: "inconsolata", monospace;
+      font-weight: 100;
+      font-size: 80px;
+      background: -webkit-linear-gradient(45deg, #7f8c8d, #55efc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0.8;
+      word-wrap: break-word;
+    }
+
+    .message {
+      font-family: "inconsolata", monospace;
+      font-size: 20px;
+      font-weight: 800;
+      background: -webkit-linear-gradient(45deg, #7f8c8d, #55efc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0.8;
+      word-wrap: break-word;
+    }
+    .user {
+      font-family: "inconsolata", monospace;
+      font-weight: 100;
+      font-size: 40px;
+      background: -webkit-linear-gradient(45deg, #b82e1f, #55efc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0.6;
+      word-wrap: break-word;
+    }
+
+    .me {
+      background: -webkit-linear-gradient(45deg, #b81f9f, #d8ef55);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      word-wrap: break-word;
+    }
+
+    .withEmoji {
+      font-family: "inconsolata", monospace;
+      font-weight: 100;
+      font-size: 40px;
+      opacity: 0.6;
+    }
+
+    .chat {
+      background: #ffffff09;
+      border-radius: 7px;
+      margin: 10px;
+      padding: 20px;
+      width: 70%;
+      /* float: right; */
+    }
+    .chat > p {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .row {
+      flex-direction: row;
+      display: flex;
+      align-items: center;
+    }
+    .sub {
+      font-size: 30px;
+      font-weight: 400;
+    }
+    .timeBox {
+      /* border: 1px solid #ffffff20; */
+      margin: 20px;
+    }
+
+    /* INPUTS */
+    .inputs {
+      background-color: #ffffff09;
+      border-radius: 5px;
+      padding: 10px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-gap: 10px;
+      justify-content: space-between;
+    }
+    .grid-item {
+      align-items: center;
+    }
+    textarea {
+      background-color: #cccccc20;
+      border: 0px;
+      min-height: 70px;
+      width: 100%;
+      border-radius: 5px;
+      color: #7f8c8d;
+      padding: 10px;
+    }
+
+    button {
+      background: -webkit-linear-gradient(45deg, #166d3b, #55efc4);
+      border: 0px;
+      padding: 5px;
+      border-radius: 5px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+        sans-serif;
+    }
+
+    button:hover {
+      opacity: 0.7;
+    }
+
+    input {
+      background-color: #ffffff10;
+      color: #7f8c8d;
+      font-size: 20px;
+      border: 0px;
+      padding: 5px;
+      border-radius: 5px;
+      flex: 1;
+      width: 70%;
+    }
+
+    .masseges {
+      height: 87vh;
+      overflow-y: scroll;
+    }
+
+    .chatbox {
+      position: absolute;
+      bottom: 0;
+      padding-bottom: 0px;
+      display: flex;
+      justify-content: space-between;
+      background-color: #ffffff30;
+      border-radius: 5px;
+      height: 10vh;
+      width: 92%;
+    }
+    .chatbox > input {
+      background-color: transparent;
+      color: #fff;
+      font-size: 20px;
+      border: 0px;
+      padding: 20px;
+    }
+    .chatbox > button {
+      background: -webkit-linear-gradient(45deg, #923cb5, #55efc4);
+      padding: 0px 30px 0px 30px;
+      font-weight: 800;
+      font-size: 20px;
+      color: rgb(17, 24, 26);
+    }
+
+    .emojies {
+      max-width: 220px;
+      max-height: 80vh;
+      padding: 10px;
+      right: 0px;
+      position: fixed;
+      top: 0;
+      display: none;
+    }
+    .emojies > button {
+      font-size: 30px;
+      background: #ffffff10;
+      padding: 5px;
+      margin-right: 5px;
+      width: 60px;
+      height: 60px;
+    }
+    #toggleEmojies {
+      color: #923cb5;
+      background: none;
+      opacity: 0.7;
+    }
+  </style>
+  <body>
+    <main
+      class="bg"
+      style="flex-direction: row; display: flex; justify-content: space-between"
+    >
+      <div class="container">
+        <div class="inputs">
+          <div>
+            <textarea placeholder="copy here pmt check in ckout times"></textarea>
+            <button>Add time</button>
+          </div>
+          <!-- <div class="grid">
+            <div class="grid-item">
+              <div>
+                <button>Add time</button>
+                <button>Add time</button>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div><input /><button>Add time</button></div>
+            </div>
+          </div> -->
+        </div>
+
+        <div class="timer">
+          <div class="row">
+            <div class="timeBox">
+              <p class="sub title">Total Hrs:</p>
+              <p class="title">04.31</p>
+            </div>
+            <div class="timeBox">
+              <p class="sub title">Remaining Hrs:</p>
+              <p class="title">03.31</p>
+            </div>
+          </div>
+          <div class="timeBox">
+            <p class="sub title">Exit Time:</p>
+            <p class="title">06.31</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="masseges" id="message-container" >
+          <div id="error-container" style="color: tomato"></div>
+        </div>
+
+        <div class="chatbox" id="chatbox">
+          <input
+            id="message"
+            type="text"
+            name="name"
+            value=""
+            placeholder="Enter your name!"
+          />
+          <button id="toggleEmojies" onclick="toggleEmojiContainer()">
+            😃
+          </button>
+          <button id="sendButton" onclick="setUsername()" class="button">
+            START CHATING!
+          </button>
+          <!-- <button  type="button"  name="button" onclick="sendMessage()" class="button">SEND</button> -->
+        </div>
+      </div>
+    </main>
+
+    <div class="emojies" id="emojies">
+      <!-- EMOJIES LOOP -->
+    </div>
+
+    <script>
+      //  EMOJIES
+      function addEmoji(val) {
+        console.log("#", val);
+        document.getElementById("message").value += val;
+        sendMessage(true);
+      }
+
+      var emojies = document.getElementById("emojies");
+      const EmojiUnicodes = [
+        "🏀",
+        "🍊",
+        "🥦",
+        "🧄",
+        "🧅",
+        "🏀",
+        "🍊",
+        "🥦",
+        "🧄",
+        "🧅",
+        "🏀",
+        "🍊",
+        "🥦",
+        "🧄",
+        "🧅",
+        "🏀",
+        "🍊",
+        "🥦",
+        "🧄",
+        "🧅",
+      ];
+      EmojiUnicodes.forEach((element) => {
+        emojies.insertAdjacentHTML(
+          "beforeend",
+          `<button value="${element}" onclick="addEmoji(this.value)">${element}</button>`
+        );
+      });
+
+      function toggleEmojiContainer() {
+        const emojesBtn = document.getElementById("toggleEmojies");
+        if (emojies.style.display !== "none") {
+          emojies.style.display = "none";
+        } else {
+          emojies.style.display = "block";
+        }
+      }
+
+
+      // Execute a function when the user releases a key on the keyboard
+      var input = document.getElementById("message");
+      //  input = document.getElementById("message");
+
+      input.addEventListener("keyup", function (event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          sendMessage();
+        }
+      });
+    
+    </script>
+  </body>
+</html>
