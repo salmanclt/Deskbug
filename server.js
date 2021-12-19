@@ -2,7 +2,7 @@ var app = require("express")();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-const port = 4000 || process.env.port
+var port =  process.env.port || 4000;
 
 users = [];
 
