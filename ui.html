@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ui</title>
+    <title>Deskbug</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,7 +24,7 @@
 
       function setUsername() {
         var inputVal = document.getElementById("message")
-        console.log("inputVal",inputVal.value);
+        // console.log("inputVal",inputVal.value);
         if(inputVal.value){
           socket.emit("setUsername", inputVal.value);
         }else{
@@ -417,36 +417,40 @@
       <div class="container">
         <div class="inputs">
           <div>
-            <textarea placeholder="copy here pmt check in ckout times"></textarea>
-            <button>Add time</button>
+            <textarea id="textArea" placeholder="copy here pmt check in ckout times"></textarea>
           </div>
-          <!-- <div class="grid">
+         <div class="grid">
             <div class="grid-item">
               <div>
-                <button>Add time</button>
-                <button>Add time</button>
+                <button onclick="genPmtTimes()">Add time</button>
               </div>
             </div>
-            <div class="grid-item">
-              <div><input /><button>Add time</button></div>
-            </div>
-          </div> -->
+            <!-- <div class="grid-item">
+              <div><input id="totalTimeInput" /><button onclick="setTotalTimeOpt2()">Add time</button></div>
+            </div> -->
+          </div>
         </div>
 
-        <div class="timer">
+        <div class="timer" id="divTimes">
           <div class="row">
             <div class="timeBox">
               <p class="sub title">Total Hrs:</p>
-              <p class="title">04.31</p>
+              <p class="title" id="time" style="font-size: 65px;">SET</p>
             </div>
             <div class="timeBox">
               <p class="sub title">Remaining Hrs:</p>
-              <p class="title">03.31</p>
+              <p class="title" id="time_remaining"
+              style="background: -webkit-linear-gradient(45deg, #d1331e, #f58319); -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;font-size: 65px;"
+              >TIMES</p>
             </div>
           </div>
           <div class="timeBox">
             <p class="sub title">Exit Time:</p>
-            <p class="title">06.31</p>
+            <p class="title" id="time_out"
+            style="background: -webkit-linear-gradient(45deg, #48d11e, #55efc4); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;"
+            >00.00</p>
           </div>
         </div>
       </div>
@@ -482,7 +486,7 @@
     <script>
       //  EMOJIES
       function addEmoji(val) {
-        console.log("#", val);
+        // console.log("#", val);
         document.getElementById("message").value += val;
         sendMessage(true);
       }
@@ -493,22 +497,26 @@
         "🍊",
         "🥦",
         "🧄",
-        "🧅",
-        "🏀",
-        "🍊",
-        "🥦",
-        "🧄",
-        "🧅",
-        "🏀",
-        "🍊",
-        "🥦",
-        "🧄",
-        "🧅",
-        "🏀",
-        "🍊",
-        "🥦",
-        "🧄",
-        "🧅",
+        "🍭",
+        "😋",
+        "😛",
+        "😜",
+        "🙄",
+        "😎",
+        "💖",
+        "💣",
+        "👋",
+        "🖖",
+        "✌",
+        "👊",
+        "🙏",
+        "🧑",
+        "👧",
+        "🦊",
+        "🐶",
+        "🐮",
+        "🐓",
+        "🌹",
       ];
       EmojiUnicodes.forEach((element) => {
         emojies.insertAdjacentHTML(
@@ -530,6 +538,7 @@
       // Execute a function when the user releases a key on the keyboard
       var input = document.getElementById("message");
       //  input = document.getElementById("message");
+      input.focus();
 
       input.addEventListener("keyup", function (event) {
         // Number 13 is the "Enter" key on the keyboard
@@ -540,6 +549,226 @@
           sendMessage();
         }
       });
+
+      // AMT TIMING
+
+      var textArea = document.getElementById("textArea");
+      var times_ = [];
+      var totalTimeOpt2 = null;
+
+      // var times_ = [
+      //   ["09:24:32", "10:59:26"],
+      //   ["11:13:45", "12:00:00"],
+      // ];
+      
+
+      function genPmtTimes() {
+        times_ = pmtTimeGen(textArea.value);
+      }
+      function setTotalTimeOpt2() {
+        totalTimeOpt2 = document.getElementById("totalTimeInput").value;
+      }
+
+   
+      // calcTime -----------------------------
+      const calcTime = (t1, t2, action = "+") => {
+        // timePlus('7:05:00', '00:52:00');
+
+        var tm = t1.split(":");
+        var tm_ = t2.split(":");
+
+        let t;
+        let tt;
+        let ttt;
+
+        if (action == "+") {
+          t = parseFloat(tm[0]) + parseFloat(tm_[0]);
+          tt = parseFloat(tm[1]) + parseFloat(tm_[1]);
+          ttt = parseFloat(tm[2]) + parseFloat(tm_[2]);
+
+          if (tt >= 60) {
+            tt -= 60;
+            t += 1;
+            if (tt == 60) {
+              t += 1;
+              tt = 0;
+            }
+          }
+
+          if (ttt >= 60) {
+            ttt -= 60;
+            tt += 1;
+            if (ttt == 60) {
+              tt += 1;
+              ttt = 0;
+            }
+          }
+        } else {
+          t = parseFloat(tm[0]) - parseFloat(tm_[0]);
+          tt = parseFloat(tm[1]) - parseFloat(tm_[1]);
+          ttt = parseFloat(tm[2]) - parseFloat(tm_[2]);
+
+          if (tt <= 0) {
+            tt = 60 - Math.abs(tt);
+            t -= 1;
+            if (tt == 60) {
+              t += 1;
+              tt = 0;
+            }
+          }
+
+          if (ttt <= 0) {
+            ttt = 60 - Math.abs(ttt);
+            tt -= 1;
+            if (ttt == 60) {
+              tt += 1;
+              ttt = 0;
+            }
+          }
+        }
+
+        if (t > 24) {
+          t -= 24;
+        } else if (t > 12) {
+          t -= 12;
+        }
+
+        const time = `${
+          Math.abs(t).toString().length == 2 ? Math.abs(t) : "0" + Math.abs(t)
+        }:${
+          Math.abs(tt).toString().length == 2
+            ? Math.abs(tt)
+            : "0" + Math.abs(tt)
+        }:${
+          Math.abs(ttt).toString().length == 2
+            ? Math.abs(ttt)
+            : "0" + Math.abs(ttt)
+        }`;
+
+        return time;
+      };
+
+      setInterval(() => {
+        if (times_.length > 0) {
+          var times = [
+            ...times_,
+            [times_[times_.length - 1][1], new Date().toLocaleTimeString()],
+          ];
+          // console.log("--", times);
+
+          var total = "00:00:00";
+
+          times.map((item, k) => {
+            let extractTime = calcTime(item[1], item[0], "-");
+            // console.log("working--", item[1], item[0], extractTime);
+            total = calcTime(total, extractTime);
+          });
+          // total time
+          document.getElementById("time").innerHTML = total;
+          // remaining time
+          var time_remaining = (document.getElementById(
+            "time_remaining"
+          ).innerHTML = calcTime("08:00:00", total, "-"));
+          // exit time
+          document.getElementById("time_out").innerHTML = calcTime(
+            new Date().toLocaleTimeString(),
+            time_remaining
+          );
+          // finish
+          if(parseFloat(total)>8){
+            // document.getElementById("divTimes").innerHTML = `
+            // <p>RUN</p>
+            // `;
+            document.getElementById("time_out").innerHTML = "| RUN |"
+            document.getElementById(
+            "time_remaining"
+          ).innerHTML = '00:00:00'
+          }
+        } else if(totalTimeOpt2) {
+         // total time
+         document.getElementById("time").innerHTML = totalTimeOpt2;
+          // remaining time
+          var time_remaining = (document.getElementById(
+            "time_remaining"
+          ).innerHTML = calcTime("08:00:00", totalTimeOpt2, "-"));
+          // exit time
+          document.getElementById("time_out").innerHTML = calcTime(
+            new Date().toLocaleTimeString(),
+            time_remaining
+          );
+          // finished
+          if(parseFloat(totalTimeOpt2)>8){
+            document.getElementById("time_out").innerHTML = "| RUN |"
+            document.getElementById(
+            "time_remaining"
+          ).innerHTML = '00:00:00'
+          }
+
+        }else{
+          // console.log("Enter Times");
+        }
+
+      }, 1000);
+
+      // Return pmt times
+      function pmtTimeGen(times) {
+        var timeArray = [];
+
+        times.replace(/^\s+|\s+$/g, "");
+
+        let arr = times.split("\n");
+
+        arr.map((item, key) => {
+          //   chckIn
+          let time = [];
+          item = item.split("\t");
+          // console.log(item)
+          let t = item[item.length - 1].split(" ");
+          //  console.log(item[2], t[1])
+
+          // chckOut
+
+          var item2 = [];
+          let t2 = ['^', new Date().toLocaleTimeString()];
+          if (arr[key + 1]) {
+            item2 = arr[key + 1].split("\t");
+            t2 = item2[item2.length - 1].split(" ");
+          }
+
+          // console.log("#", t2)
+
+          if (item[2] == "Check-In") {
+
+            // time[0] = t[1];
+
+             if (parseInt(t[1]) == 13) {
+              time[0] = "13:45:00";
+            } else {
+              time[0] = t[1];
+            }
+
+            if (parseInt(t2[1]) == 13) {
+              time[1] = "13:00:00";
+            } else {
+              time[1] = t2[1];
+            }
+          } else {
+            //  time[1] = t[1];
+            //  time[0] = t2[1]
+          }
+
+          //  console.log(time)
+
+          if (time.length != 0) {
+            timeArray.push(time);
+          }
+          time = [];
+        });
+
+        return timeArray;
+      }
+
+      
     
     </script>
   </body>
