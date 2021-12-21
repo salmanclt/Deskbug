@@ -15,23 +15,20 @@
       src="https://cdn.skypack.dev/emoji-picker-element"
       type="module"
     ></script>
-    <link rel="stylesheet" href="style.css" />
-    <script type="text/javascript" src="main.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
       var socket = io();
 
       function setUsername() {
-        var inputVal = document.getElementById("message")
+        var inputVal = document.getElementById("message");
         // console.log("inputVal",inputVal.value);
-        if(inputVal.value){
+        if (inputVal.value) {
           socket.emit("setUsername", inputVal.value);
-        }else{
-          alert("Enter Nickname!")
+        } else {
+          alert("Enter Nickname!");
         }
       }
-
 
       var user;
 
@@ -39,13 +36,14 @@
         document.getElementById("error-container").innerHTML = data;
       });
 
-
       socket.on("userSet", function (data) {
         user = data.username;
         var sendButton = document.getElementById("sendButton");
         sendButton.setAttribute("onclick", "sendMessage()");
-        sendButton.innerHTML =  "SEND";
-        document.getElementById("message").setAttribute("placeholder","Message...")
+        sendButton.innerHTML = "SEND";
+        document
+          .getElementById("message")
+          .setAttribute("placeholder", "Message...");
         // document.getElementById(
         //   "chatbox"
         // ).innerHTML = `<input type="text" id="message" placeholder="Message..." />
@@ -55,11 +53,7 @@
         document.getElementById("message").value = "";
         //  remove err
         document.getElementById("error-container").innerHTML = ``;
-
       });
-
-
-
 
       function sendMessage(withEmoji = false) {
         var msg = document.getElementById("message").value;
@@ -105,7 +99,7 @@
 
         // console.log(user, data.user.length);
 
-        if (user) {
+        // if (user) {
           document.getElementById(
             "message-container"
           ).innerHTML += `<div class="chat" ${
@@ -124,7 +118,7 @@
             data.message
           }</span>
           </div>`;
-        }
+        // }
         // push notification
         if (!isYou) notifyMe(data.user, data.message);
         var messageContainer = document.getElementById("message-container");
@@ -150,15 +144,14 @@
           Notification.requestPermission();
         else {
           var notification = new Notification(user, {
-            icon: "http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png",
+            icon: "https://ctl.s6img.com/society6/img/Ei71OMtRmxiZjW7FhkwrEjVxb6c/w_1500/prints/~artwork/s6-original-art-uploads/society6/uploads/misc/86556d05555644f8bbcf500d1f283474/~~/cool-chick533978-prints.jpg",
             body: msg,
           });
           notification.onclick = function () {
-            window.open("http://stackoverflow.com/a/13328397/1269037");
+            window.open("https://deskbug.herokuapp.com");
           };
         }
       }
-
     </script>
   </head>
   <style>
@@ -188,6 +181,22 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #ffffff15;
     }
+
+    ::-webkit-input-placeholder { /* Edge */
+      color: #7f8c8d;
+      font-size: 14px;
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #7f8c8d;
+  font-size: 14px;
+
+}
+
+::placeholder {
+  color: #7f8c8d;
+  font-size: 14px;
+}
 
     body {
       background-color: #000;
@@ -226,11 +235,12 @@
       height: 100vh;
       border-radius: 20px;
       width: 48%;
+      height: 100vh;
       padding: 20px;
       position: relative;
     }
 
-    p {
+    p,a {
       font-family: "inconsolata", monospace;
       font-weight: 100;
       font-size: 80px;
@@ -309,19 +319,21 @@
       padding: 10px;
     }
     .grid {
-      display: grid;
+      display: grid; 
       grid-template-columns: auto auto;
       grid-gap: 10px;
       justify-content: space-between;
+      align-items: center;
     }
     .grid-item {
+      justify-content: space-between;
       align-items: center;
     }
     textarea {
       background-color: #cccccc20;
       border: 0px;
-      min-height: 70px;
       width: 100%;
+      min-height: 70px;
       border-radius: 5px;
       color: #7f8c8d;
       padding: 10px;
@@ -330,18 +342,17 @@
     button {
       background: -webkit-linear-gradient(45deg, #166d3b, #55efc4);
       border: 0px;
-      padding: 5px;
+      padding: 6px;
       border-radius: 5px;
-      margin-top: 5px;
-      margin-bottom: 5px;
       cursor: pointer;
       font-size: 15px;
       font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
         sans-serif;
     }
 
-    button:hover {
-      opacity: 0.7;
+    button:hover ,
+    a:hover {
+      opacity: 0.5;
     }
 
     input {
@@ -353,6 +364,7 @@
       border-radius: 5px;
       flex: 1;
       width: 70%;
+      margin: 5px;
     }
 
     .masseges {
@@ -408,6 +420,10 @@
       background: none;
       opacity: 0.7;
     }
+    footer{
+      position: absolute;
+      bottom: 0;
+    }
   </style>
   <body>
     <main
@@ -417,17 +433,23 @@
       <div class="container">
         <div class="inputs">
           <div>
-            <textarea id="textArea" placeholder="copy here pmt check in ckout times"></textarea>
+            <textarea
+              id="textArea"
+              oninput="this.style.height = this.scrollHeight+'px'"
+              placeholder="Copy here pmt check in ckout times &#10;1	Entrance	Check-In	2021-12-21 09:19:05.000000 &#10;2	Entrance	Check-Out	2021-12-21 10:50:05.000000 &#10;-	   -           	--       	--- ---.--"
+            ></textarea>
           </div>
-         <div class="grid">
-            <div class="grid-item">
+          <div class="grid">
+        <div class="grid-item">
               <div>
-                <button onclick="genPmtTimes()">Add time</button>
+                <button style="padding-left: 40px;padding-right: 40px;" onclick="genPmtTimes()">Add time</button>
               </div>
             </div>
-            <!-- <div class="grid-item">
-              <div><input id="totalTimeInput" /><button onclick="setTotalTimeOpt2()">Add time</button></div>
-            </div> -->
+             <div class="grid-item" >
+              <div>
+                <input id="totalTimeInput" placeholder="or - 00:00:00 (working hrs)"  />
+                <button onclick="setTotalTimeOpt2()">Add time</button></div>
+            </div> 
           </div>
         </div>
 
@@ -435,28 +457,47 @@
           <div class="row">
             <div class="timeBox">
               <p class="sub title">Total Hrs:</p>
-              <p class="title" id="time" style="font-size: 65px;">SET</p>
+              <p class="title" id="time" style="font-size: 65px">SET</p>
             </div>
             <div class="timeBox">
               <p class="sub title">Remaining Hrs:</p>
-              <p class="title" id="time_remaining"
-              style="background: -webkit-linear-gradient(45deg, #d1331e, #f58319); -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;font-size: 65px;"
-              >TIMES</p>
+              <p
+                class="title"
+                id="time_remaining"
+                style="
+                  background: -webkit-linear-gradient(45deg, #d1331e, #f58319);
+                  -webkit-background-clip: text;
+                  -webkit-text-fill-color: transparent;
+                  font-size: 65px;
+                "
+              >
+                TIMES
+              </p>
             </div>
           </div>
           <div class="timeBox">
             <p class="sub title">Exit Time:</p>
-            <p class="title" id="time_out"
-            style="background: -webkit-linear-gradient(45deg, #48d11e, #55efc4); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;"
-            >00.00</p>
+            <p
+              class="title"
+              id="time_out"
+              style="
+                background: -webkit-linear-gradient(45deg, #48d11e, #55efc4);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+              "
+            >
+              00.00
+            </p>
           </div>
         </div>
+        <footer>
+          <a style="font-size: 15px; font-weight: 800;" target="_blank" href="https://github.com/amir-abbasy/AMT-Timer">GitCode https://github.com/deskbug...</a>
+          <p style="font-size: 15px; font-weight: 400; margin: 5px; margin-left: 0px;">This project follows the all-contributors specification. Contributions of any kind welcome!</p>
+        </footer>
       </div>
 
       <div class="container">
-        <div class="masseges" id="message-container" >
+        <div class="masseges" id="message-container">
           <div id="error-container" style="color: tomato"></div>
         </div>
 
@@ -534,7 +575,6 @@
         }
       }
 
-
       // Execute a function when the user releases a key on the keyboard
       var input = document.getElementById("message");
       //  input = document.getElementById("message");
@@ -560,20 +600,19 @@
       //   ["09:24:32", "10:59:26"],
       //   ["11:13:45", "12:00:00"],
       // ];
-      
 
       function genPmtTimes() {
+        totalTimeOpt2 = null
         times_ = pmtTimeGen(textArea.value);
       }
       function setTotalTimeOpt2() {
+        times_ = []
         totalTimeOpt2 = document.getElementById("totalTimeInput").value;
       }
 
-   
       // calcTime -----------------------------
-      const calcTime = (t1, t2, action = "+") => {
+      const calcTime = (t1, t2, action = "+", is24 = false) => {
         // timePlus('7:05:00', '00:52:00');
-
         var tm = t1.split(":");
         var tm_ = t2.split(":");
 
@@ -626,13 +665,13 @@
             }
           }
         }
-
-        if (t > 24) {
-          t -= 24;
-        } else if (t > 12) {
-          t -= 12;
+        if (is24) {
+          if (t > 24) {
+            t -= 24;
+          } else if (t > 12) {
+            t -= 12;
+          }
         }
-
         const time = `${
           Math.abs(t).toString().length == 2 ? Math.abs(t) : "0" + Math.abs(t)
         }:${
@@ -652,9 +691,13 @@
         if (times_.length > 0) {
           var times = [
             ...times_,
-            [times_[times_.length - 1][1], new Date().toLocaleTimeString()],
+            [
+              times_[times_.length - 1][1],
+              new Date().toLocaleTimeString("en-GB"),
+            ],
           ];
           // console.log("--", times);
+          // console.log("NOW", new Date().toLocaleTimeString('en-GB'));
 
           var total = "00:00:00";
 
@@ -671,43 +714,40 @@
           ).innerHTML = calcTime("08:00:00", total, "-"));
           // exit time
           document.getElementById("time_out").innerHTML = calcTime(
-            new Date().toLocaleTimeString(),
-            time_remaining
+            new Date().toLocaleTimeString("en-GB"),
+            time_remaining, undefined, true
           );
           // finish
-          if(parseFloat(total)>8){
+          if (parseFloat(total) >= 8) {
             // document.getElementById("divTimes").innerHTML = `
             // <p>RUN</p>
             // `;
-            document.getElementById("time_out").innerHTML = "| RUN |"
-            document.getElementById(
-            "time_remaining"
-          ).innerHTML = '00:00:00'
+            document.getElementById("time_out").innerHTML = "| RUN |";
+            document.getElementById("time_remaining").innerHTML = "00:00:00";
           }
-        } else if(totalTimeOpt2) {
-         // total time
-         document.getElementById("time").innerHTML = totalTimeOpt2;
+        } else if (totalTimeOpt2) {
+
+          totalTimeOpt2 = calcTime(totalTimeOpt2, '00:00:01') // update total time
+
+          // total time
+          document.getElementById("time").innerHTML = totalTimeOpt2;
           // remaining time
           var time_remaining = (document.getElementById(
             "time_remaining"
           ).innerHTML = calcTime("08:00:00", totalTimeOpt2, "-"));
           // exit time
           document.getElementById("time_out").innerHTML = calcTime(
-            new Date().toLocaleTimeString(),
-            time_remaining
+            new Date().toLocaleTimeString("en-GB"),
+            time_remaining, undefined, true
           );
           // finished
-          if(parseFloat(totalTimeOpt2)>8){
-            document.getElementById("time_out").innerHTML = "| RUN |"
-            document.getElementById(
-            "time_remaining"
-          ).innerHTML = '00:00:00'
+          if (parseFloat(totalTimeOpt2) >= 8) {
+            document.getElementById("time_out").innerHTML = "| RUN |";
+            document.getElementById("time_remaining").innerHTML = "00:00:00";
           }
-
-        }else{
+        } else {
           // console.log("Enter Times");
         }
-
       }, 1000);
 
       // Return pmt times
@@ -729,7 +769,7 @@
           // chckOut
 
           var item2 = [];
-          let t2 = ['^', new Date().toLocaleTimeString()];
+          let t2 = ["^", new Date().toLocaleTimeString("en-GB")];
           if (arr[key + 1]) {
             item2 = arr[key + 1].split("\t");
             t2 = item2[item2.length - 1].split(" ");
@@ -738,10 +778,9 @@
           // console.log("#", t2)
 
           if (item[2] == "Check-In") {
-
             // time[0] = t[1];
 
-             if (parseInt(t[1]) == 13) {
+            if (parseInt(t[1]) == 13) {
               time[0] = "13:45:00";
             } else {
               time[0] = t[1];
@@ -767,9 +806,7 @@
 
         return timeArray;
       }
-
-      
-    
     </script>
   </body>
 </html>
+
