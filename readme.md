@@ -10,7 +10,6 @@
 `npm i express socket-io`
 
 Contributors
--------------
 
 -------------
 <div style="display: flex; flex-direction: row;">
@@ -23,8 +22,9 @@ Neenu
  Amir
 <img src="https://www.whatsappprofiledpimages.com/wp-content/uploads/2019/08/funny-profile-Photo-Download.jpg" width="70" height="70">
 </div>
-Contributions of any kind welcome!
 
+Contributions of any kind welcome!
+-------------
 
 
 
